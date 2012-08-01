@@ -1,0 +1,31 @@
+# ipp2dns.settings configuration file
+#
+# This file is searched for in the following order:
+#	same folder as the binary
+#	/etc/ipp2dns.settings
+#	~/.ipp2dns/ipp2dns.settings
+#
+# The file is entirely optional, but you'll get a lot better results by tweaking it...
+
+
+[dns]
+#
+# Your domain name suffix.
+# default: (not set)
+#
+	suffix = vpn.spotspecific.com
+
+[source]
+# 
+# Where to read the certificate dhcp pool file from
+# default: /etc/openvpn/ipp.txt
+#
+#	ippool =/etc/openvpn/ipp.txt
+
+[destination]
+# 
+# Where to read the certificate dhcp pool file from
+# default: /etc/openvpn/ipp.txt
+#
+#	output = /etc/openvpn/ipp.txt
+

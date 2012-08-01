@@ -1,0 +1,70 @@
+#!/usr/bin/python
+import sys, logging
+import os.path as op
+from optparse import OptionParser
+import ConfigParser
+
+__version__ = '0.1'
+logger = logging.getLogger('ipp2dns')
+
+def main():
+    usage = '%s [options] [source]' % sys.argv[0]
+    parser = OptionParser(usage)
+
+    parser.add_option('', '--out', default='-',
+                      help='redirect output to this file (default: stdout)')
+    parser.add_option('-v', '--verbose', default=False, action='store_true',
+                      help='output more logs')
+    parser.add_option('--debug', default=False, action='store_true',
+                      help='show entire progress via "EVEN-MOAR" logs')
+
+    parser.add_option('', '--version', default=False, action='store_true',
+                      help='show ipp2dns version')
+
+    opts, args = parser.parse_args()
+
+    if opts.version:
+        print 'ipp2dns', __version__
+        sys.exit(0)
+
+    if opts.debug:
+        level = logging.DEBUG
+    elif opts.verbose:
+        level = logging.INFO
+    else:
+        level = logging.ERROR
+
+    logging.basicConfig(stream=sys.stderr, level=level)
+
+    if opts.out == '-':
+        logging.basicConfig(stream=sys.stdout)
+    else:
+        logging.basicConfig(filename=opts.out)
+
+    for path in [op.abspath(op.dirname(__file__)), '/etc', op.expanduser('~')]:
+        if path == []:
+	    path = ''
+        if op.exists(op.join(path, 'ipp2dns.settings')):
+            logger.debug("Found ipp2dns.settings in "+path)
+            # load the settings, and keep looking for overriders....
+            loadConfig(op.join(path, 'ipp2dns.settings'))
+            print DNS_SUFFIX
+	logger.debug("finished looking in "+path);
+
+    # dest = opts.dest or op.join(source, '_build')
+
+def loadConfig(filename):
+    parser=ConfigParser.SafeConfigParser()
+    parser.read([filename])
+    print(parser.sections())
+    print(parser.options(section))
+    # ['id', 'rb', 'person']
+    for option in parser.options(section):
+        try:
+            value=parser.getint(section,option)
+        except ValueError:
+            value=parser.get(section,option)
+        print(option,value,type(value))
+
+if __name__ == '__main__':
+    main()
