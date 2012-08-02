@@ -11,22 +11,38 @@
 [dns]
 #
 # Your domain name suffix.
+#
 # default: (not set)
 suffix = vpn.spotspecific.com
+
+#
+# How do you want your hosts labeled. A fourpart array.
+# This is used to 'join' the remote-host (certificate) with the dns.suffix, above.
+#
+# default: ['.network.','.gateway.','.','.broadcast.']
 network = ['.network.','.gateway.','.','.broadcast.']
 
 [source]
 # 
 # Where to read the certificate dhcp pool file from
+#
 # default: /etc/openvpn/ipp.txt
 ippool =./ipp.txt
 
 [destination]
 # 
 # Where to write the output file
+#
 # default: STDOUT
 output = ./example.bind
 #
 # What output format should I use?
-#  ['bind', 'host', 'rdns']
+# Which format should I generate, pick from:
+#       ['bind', 'host', 'rdns']
+# Where:
+#       bind: a zonefile, loadable into bind.
+#       host: a hostfile, as found in /etc/hosts. Append here :)
+#       rdns: a lookup for reverse (IP) to Host.
+#
+# default: host
 format = host
