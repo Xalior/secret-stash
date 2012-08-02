@@ -38,12 +38,10 @@ def main():
     else:
         level = logging.ERROR
 
-    logging.basicConfig(stream=sys.stderr, level=level)
-
     if opts.out == '-':
-        logging.basicConfig(stream=sys.stdout)
+        logging.basicConfig(stream=sys.stderr, level=level)
     else:
-        logging.basicConfig(filename=opts.out)
+        logging.basicConfig(filename=opts.out, level=level)
 
     for path in [op.abspath(op.dirname(__file__)), '/etc', op.join(op.expanduser('~'), '.ipp2dns')]:
         if path == []:
@@ -76,7 +74,6 @@ def loadPool(filename):
         elif runtime['destination.format'].lower()=='rdns':
             print "rdns"
 
-
 def loadConfig(filename):
     global runtime
     parser=ConfigParser.SafeConfigParser()
@@ -89,6 +86,13 @@ def loadConfig(filename):
             except ValueError:
                 runtime[section+'.'+option] = parser.get(section,option)
             logger.debug("loading "+option+" with "+runtime[section+'.'+option]+" as "+str(type(runtime[section+'.'+option])))
+
+def writeLine(line):
+    global runtime
+    print 
+
+
+
 
 if __name__ == '__main__':
     main()
