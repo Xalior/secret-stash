@@ -7,7 +7,11 @@ import ConfigParser
 __version__ = '0.1'
 logger = logging.getLogger('ipp2dns')
 
+runtime = {}
+hosts = {}
+
 def main():
+    global runtime
     usage = '%s [options] [source]' % sys.argv[0]
     parser = OptionParser(usage)
 
@@ -41,30 +45,50 @@ def main():
     else:
         logging.basicConfig(filename=opts.out)
 
-    for path in [op.abspath(op.dirname(__file__)), '/etc', op.expanduser('~')]:
+    for path in [op.abspath(op.dirname(__file__)), '/etc', op.join(op.expanduser('~'), '.ipp2dns')]:
         if path == []:
-	    path = ''
+            path = ''
         if op.exists(op.join(path, 'ipp2dns.settings')):
             logger.debug("Found ipp2dns.settings in "+path)
             # load the settings, and keep looking for overriders....
             loadConfig(op.join(path, 'ipp2dns.settings'))
-            print DNS_SUFFIX
-	logger.debug("finished looking in "+path);
+        logger.debug("Current config: "+str(runtime))
+        logger.info("Finished looking in "+path);
+    if runtime['dns.network']:
+        runtime['dns.network']=eval(runtime['dns.network'])
+    loadPool(runtime['source.ippool'])
 
-    # dest = opts.dest or op.join(source, '_build')
+def loadPool(filename):
+    global hosts
+    ipp = open(filename).read()
+    for line in ipp.splitlines():
+        logger.debug("IPPOOL entry: "+line)
+        (host, fqip) = line.split(',')
+        (q1, q2, q3, q4) = fqip.split('.')
+
+        if runtime['destination.format'].lower()=='host':
+            print q1+'.'+q2+'.'+q3+'.'+q4+" "+host+runtime['dns.network'][0]+runtime['dns.suffix']
+            print q1+'.'+q2+'.'+q3+'.'+str(1+int(q4))+" "+host+runtime['dns.network'][1]+runtime['dns.suffix']
+            print q1+'.'+q2+'.'+q3+'.'+str(2+int(q4))+" "+host+runtime['dns.network'][2]+runtime['dns.suffix']
+            print q1+'.'+q2+'.'+q3+'.'+str(3+int(q4))+" "+host+runtime['dns.network'][3]+runtime['dns.suffix']
+        elif runtime['destination.format'].lower()=='bind':
+            print "bind"
+        elif runtime['destination.format'].lower()=='rdns':
+            print "rdns"
+
 
 def loadConfig(filename):
+    global runtime
     parser=ConfigParser.SafeConfigParser()
     parser.read([filename])
-    print(parser.sections())
-    print(parser.options(section))
-    # ['id', 'rb', 'person']
-    for option in parser.options(section):
-        try:
-            value=parser.getint(section,option)
-        except ValueError:
-            value=parser.get(section,option)
-        print(option,value,type(value))
+    logger.debug("config file contains sections: "+str(parser.sections()))
+    for section in parser.sections():
+        for option in parser.options(section):
+            try:
+                runtime[section+'.'+option] = parser.getint(section,option)
+            except ValueError:
+                runtime[section+'.'+option] = parser.get(section,option)
+            logger.debug("loading "+option+" with "+runtime[section+'.'+option]+" as "+str(type(runtime[section+'.'+option])))
 
 if __name__ == '__main__':
     main()

@@ -12,20 +12,21 @@
 #
 # Your domain name suffix.
 # default: (not set)
-#
-	suffix = vpn.spotspecific.com
+suffix = vpn.spotspecific.com
+network = ['.network.','.gateway.','.','.broadcast.']
 
 [source]
 # 
 # Where to read the certificate dhcp pool file from
 # default: /etc/openvpn/ipp.txt
-#
-#	ippool =/etc/openvpn/ipp.txt
+ippool =./ipp.txt
 
 [destination]
 # 
-# Where to read the certificate dhcp pool file from
-# default: /etc/openvpn/ipp.txt
+# Where to write the output file
+# default: STDOUT
+output = ./example.bind
 #
-#	output = /etc/openvpn/ipp.txt
-
+# What output format should I use?
+#  ['bind', 'host', 'rdns']
+format = host
